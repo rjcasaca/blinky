@@ -1,0 +1,14 @@
+Blinky
+Copyright (c) 2026 rjcasaca and Blinky contributors
+
+Blinky original source code and project documentation are licensed under MIT.
+See LICENSE for the complete permission, warranty and liability terms.
+
+Third-party components are not relicensed by Blinky. See THIRD-PARTY-NOTICES.md,
+DEPENDENCIES.md and the files in licenses/ for their notices and terms.
+
+This distribution uses the Model Context Protocol C# SDK, copyright Model
+Context Protocol, a Series of LF Projects, LLC, under the Apache License 2.0.
+
+Third-party product and project names are used for identification; no
+affiliation, sponsorship or endorsement is implied.

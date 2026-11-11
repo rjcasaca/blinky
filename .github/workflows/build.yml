@@ -1,0 +1,38 @@
+name: Build Windows portable app
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run core checks
+        run: dotnet run --project tests/Blinky.Core.Tests -c Release
+      - name: Run real optimizer integration checks with Windows FFmpeg
+        shell: pwsh
+        run: dotnet run --project tests/Blinky.Optimizer.Tests -c Release -- --windows-tools "$env:RUNNER_TEMP/blinky-optimizer-tools"
+      - name: Class notes and MCP checks
+        shell: pwsh
+        run: |
+          $env:FFMPEG_PATH = "$env:RUNNER_TEMP/blinky-optimizer-tools/ffmpeg-9.0.2/ffmpeg.exe"
+          $env:FFPROBE_PATH = "$env:RUNNER_TEMP/blinky-optimizer-tools/ffmpeg-9.0.2/ffprobe.exe"
+          dotnet run --project tests/Blinky.Notes.Tests -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build src/Blinky.Mcp/Blinky.Mcp.csproj -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tests/mcp_smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish portable app and MCP server
+        shell: pwsh
+        run: ./scripts/publish.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Blinky-win-x64
+          path: artifacts/Blinky-win-x64.zip

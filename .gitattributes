@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+# Preserve upstream license files byte-for-byte, including their line endings.
+licenses/* -text -whitespace

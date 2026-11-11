@@ -1,0 +1,71 @@
+<Window x:Class="Blinky.App.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Blinky" Width="1140" Height="820" MinWidth="800" MinHeight="600" WindowStyle="None" ResizeMode="CanResize"
+        Background="#131725" Foreground="{StaticResource Ink}" FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen">
+  <shell:WindowChrome.WindowChrome><shell:WindowChrome CaptionHeight="58" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/></shell:WindowChrome.WindowChrome>
+  <Border BorderBrush="#30364B" BorderThickness="1" Padding="24,0,24,20">
+    <Grid>
+      <Grid.RowDefinitions><RowDefinition Height="68"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+      <Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Ellipse Width="14" Height="14" Fill="#FF695E" Margin="0,0,10,0"/><TextBlock Text="blinky" FontSize="28" FontWeight="Bold"/><TextBlock Text="Room for hours." Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="18,5,0,0"/></StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Border Background="#252C3D" CornerRadius="10" Padding="12,6" Margin="0,0,16,0"><TextBlock x:Name="StateBadge" Text="READY" FontSize="11" FontWeight="SemiBold"/></Border>
+          <Button Content="—" Click="Minimize_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True" Background="Transparent" Padding="12,8" Margin="0" AutomationProperties.Name="Minimize to tray"/>
+          <Button x:Name="MaximizeButton" Content="□" Click="Maximize_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True" Background="Transparent" Padding="12,8" Margin="0" AutomationProperties.Name="Maximize or restore"/>
+          <Button Content="✕" Click="CloseWindow_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True" Background="Transparent" Padding="12,8" Margin="0" AutomationProperties.Name="Close to tray"/>
+        </StackPanel>
+      </Grid>
+      <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <Grid Width="1080" Height="720">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="520"/><ColumnDefinition Width="28"/><ColumnDefinition Width="532"/></Grid.ColumnDefinitions>
+          <StackPanel x:Name="SettingsPanel">
+            <TextBlock Text="RECORDING MODE" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/>
+            <ComboBox x:Name="ModePicker" SelectedIndex="0" SelectionChanged="Mode_Changed" AutomationProperties.Name="Recording mode"><ComboBoxItem Content="Screen + microphone + system audio"/><ComboBoxItem Content="Audio only · microphone + system audio (.m4a)"/></ComboBox>
+            <Grid><TextBlock Text="SCREEN OR WINDOW" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/><Button Content="Refresh sources" Click="Refresh_Click" HorizontalAlignment="Right" Padding="8,3" FontSize="11" Margin="0"/></Grid>
+            <ComboBox x:Name="TargetPicker" DisplayMemberPath="Name" AutomationProperties.Name="Screen or window to record"/>
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="18"/><ColumnDefinition/></Grid.ColumnDefinitions>
+              <StackPanel><TextBlock Text="MICROPHONE · REQUIRED" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/><ComboBox x:Name="MicPicker" DisplayMemberPath="Name" SelectionChanged="Audio_Changed" AutomationProperties.Name="Microphone"/><ProgressBar x:Name="MicMeter" AutomationProperties.Name="Microphone level"/><Slider x:Name="MicVolume" Minimum="0.05" Maximum="1" Value="0.8" Margin="0,8,0,12" AutomationProperties.Name="Microphone recording volume"/></StackPanel>
+              <StackPanel Grid.Column="2"><TextBlock Text="SYSTEM AUDIO · REQUIRED" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/><ComboBox x:Name="SystemPicker" DisplayMemberPath="Name" SelectionChanged="Audio_Changed" AutomationProperties.Name="System audio output"/><ProgressBar x:Name="SystemMeter" AutomationProperties.Name="System audio level"/><Slider x:Name="SystemVolume" Minimum="0.05" Maximum="1" Value="0.8" Margin="0,8,0,12" AutomationProperties.Name="System recording volume"/></StackPanel>
+            </Grid>
+            <TextBlock Text="Both audio sources are always recorded. Use headphones to avoid echo." TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource Muted}" Margin="0,0,0,16"/>
+            <Grid x:Name="VideoSettingsPanel">
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="18"/><ColumnDefinition/></Grid.ColumnDefinitions>
+              <StackPanel><TextBlock Text="VIDEO PRESET" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/><ComboBox x:Name="ProfilePicker" DisplayMemberPath="Name" SelectionChanged="Profile_Changed" AutomationProperties.Name="Recording preset"/></StackPanel>
+              <StackPanel Grid.Column="2"><TextBlock Text="VIDEO FORMAT" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/><ComboBox x:Name="CodecPicker" SelectedIndex="0" AutomationProperties.Name="Video format"><ComboBoxItem Content="H.264 · most compatible"/><ComboBoxItem Content="HEVC · smaller files"/></ComboBox></StackPanel>
+            </Grid>
+            <TextBlock x:Name="ProfileHelp" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+            <CheckBox x:Name="HardwareCheck" Content="Use hardware encoding for video when available" IsChecked="True"/>
+            <TextBlock Text="SAVE TO" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold" Margin="0,14,0,8"/>
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox x:Name="FolderText" Padding="9,8" Background="#1D2333" Foreground="#EDEEF3" BorderBrush="#30364B" VerticalContentAlignment="Center" AutomationProperties.Name="Recording output folder"/><Button Grid.Column="1" Content="Browse" Click="Browse_Click" Margin="8,0,0,0"/></Grid>
+            <Border Background="#1D2333" CornerRadius="10" Padding="16" Margin="0,20,0,0"><StackPanel><TextBlock Text="CLASS TRANSCRIPTS &amp; NOTES" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Muted}"/><TextBlock Text="Connect Claude or Codex to Blinky for full class transcripts, detailed notes and summaries using your Markdown templates." TextWrapping="Wrap" Margin="0,8,0,10" FontSize="12"/><Button Content="MCP setup &amp; templates" Click="McpSetup_Click" HorizontalAlignment="Left" Padding="12,8"/></StackPanel></Border>
+          </StackPanel>
+          <StackPanel Grid.Column="2">
+            <Border Background="#1D2333" CornerRadius="12" Padding="20" Margin="0,0,0,16"><StackPanel>
+              <TextBlock x:Name="ClockText" Text="00:00:00" FontFamily="Consolas" FontSize="42" FontWeight="Bold"/>
+              <TextBlock x:Name="StatusText" Text="Choose your sources. Microphone and system audio are required." TextWrapping="Wrap" Foreground="{StaticResource Muted}" Margin="0,8,0,12" MaxHeight="62"/>
+              <TextBlock x:Name="StorageText" Text="Recordings are written directly to disk." Foreground="{StaticResource Muted}" FontSize="12"/>
+            </StackPanel></Border>
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Button x:Name="RecordButton" Content="●  Start recording" Background="#E65E54" Click="Record_Click"/><Button x:Name="PauseButton" Grid.Column="1" Content="Pause" Click="Pause_Click" IsEnabled="False"/><Button Grid.Column="2" Content="Open folder" Click="OpenFolder_Click" Margin="0"/></Grid>
+            <Border Background="#1D2333" CornerRadius="10" Padding="16" Margin="0,18,0,0"><StackPanel>
+              <TextBlock Text="MEETING PROMPTS" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/>
+              <CheckBox x:Name="MeetingPromptsCheck" Content="Offer to record when a meeting app uses the microphone" Checked="Automation_Changed" Unchecked="Automation_Changed"/>
+              <CheckBox x:Name="BrowserMeetingsCheck" Content="Include browser microphone activity (e.g. Google Meet)" Checked="Automation_Changed" Unchecked="Automation_Changed"/>
+              <StackPanel Orientation="Horizontal" Margin="0,4,0,8"><TextBlock Text="Stop after meeting ends:" VerticalAlignment="Center" Margin="0,0,10,0"/><ComboBox x:Name="MeetingDelayPicker" Width="150" Margin="0" SelectionChanged="MeetingDelay_Changed" SelectedIndex="1" AutomationProperties.Name="Meeting end grace period"><ComboBoxItem Content="Immediately" Tag="0"/><ComboBoxItem Content="60 seconds" Tag="60"/><ComboBoxItem Content="2 minutes" Tag="120"/><ComboBoxItem Content="5 minutes" Tag="300"/></ComboBox></StackPanel>
+              <TextBlock x:Name="MeetingStatusText" Text="Tray prompt only. Click it to start an audio-only recording." Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" MaxHeight="36"/>
+            </StackPanel></Border>
+            <Border Background="#1D2333" CornerRadius="10" Padding="16" Margin="0,18,0,0"><StackPanel>
+              <TextBlock Text="SMALLER VIDEO COPY" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="Bold"/>
+              <TextBlock x:Name="OptimizationSourceText" Text="Choose a finished video to optimize." TextTrimming="CharacterEllipsis" Margin="0,8,0,10"/>
+              <WrapPanel><Button x:Name="OptimizeButton" Content="Create smaller copy" Click="Optimize_Click" IsEnabled="False" Padding="12,8" Margin="0,0,8,8"/><Button x:Name="ChooseOptimizationButton" Content="Choose video…" Click="ChooseOptimization_Click" Padding="12,8" Margin="0,0,8,8"/><Button x:Name="CancelOptimizationButton" Content="Cancel" Click="CancelOptimization_Click" IsEnabled="False" Padding="12,8" Margin="0,0,0,8"/></WrapPanel>
+              <ProgressBar x:Name="OptimizationBar" Maximum="100" Visibility="Collapsed" Margin="0,4,0,8" AutomationProperties.Name="Smaller copy progress"/>
+              <TextBlock x:Name="OptimizationStatusText" Text="Separate HEVC video; original and audio kept. First use downloads the optimizer." Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" MaxHeight="52" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+              <Button x:Name="OpenOptimizedButton" Content="Open smaller copy" Click="OpenOptimized_Click" Visibility="Collapsed" HorizontalAlignment="Left" Padding="12,8" Margin="0,10,0,0"/>
+            </StackPanel></Border>
+          </StackPanel>
+        </Grid>
+      </Viewbox>
+      <Grid Grid.Row="2" Margin="0,14,0,0"><TextBlock x:Name="ShortcutText" Text="Ctrl + Shift + F9  record / stop    ·    Ctrl + Shift + F10  pause / resume" Foreground="{StaticResource Muted}" FontSize="11"/><TextBlock Text="Close or minimize to keep Blinky in the tray." Foreground="{StaticResource Muted}" FontSize="11" HorizontalAlignment="Right"/></Grid>
+    </Grid>
+  </Border>
+</Window>
